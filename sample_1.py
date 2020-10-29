@@ -121,13 +121,17 @@ def get_prediction(model, img_path, threshold):
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
     pred_score = list(pred[0]['scores'].detach().numpy())
     # import ipdb; ipdb.set_trace()
-    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
-    pred_boxes = pred_boxes[:pred_t+1]
-    pred_class = pred_class[:pred_t+1]
-    pred_score = pred_score[:pred_t+1]
-    # print(len(pred_boxes))
-    # print(pred)
-    return pred_boxes, pred_class, pred_score
+    pred_t = [pred_score.index(x) for x in pred_score if x > threshold] # Get list of index with score greater than threshold.
+    if pred_t is None:
+        return [], [], []
+    else:
+        pred_t = pred_t[-1]
+        pred_boxes = pred_boxes[:pred_t+1]
+        pred_class = pred_class[:pred_t+1]
+        pred_score = pred_score[:pred_t+1]
+        # print(len(pred_boxes))
+        # print(pred)
+        return pred_boxes, pred_class, pred_score
 
 
 
@@ -138,7 +142,7 @@ if __name__ == "__main__":
         dataset_test, batch_size=1, shuffle=False, num_workers=4,
         collate_fn=utils.collate_fn)
     model = init_model()
-    imgs = glob.glob(os.path.join('validating_data/', "*"))
+    imgs = glob.glob(os.path.join('validating_data/', "000003085.jpg"))
     # rand_img = random.sample(imgs, 1) 
     # import ipdb; ipdb.set_trace()
     myBoundingBoxes = BoundingBoxes()
@@ -159,6 +163,8 @@ if __name__ == "__main__":
         print("predict {}".format(target["img_name"]))
         #failed at predict 000003085
         pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
+        if pred_boxes is None:
+            continue
         # import ipdb; ipdb.set_trace()
         for idx_detect in range(len(pred_boxes)):
             detected_boundingBox = BoundingBox(
