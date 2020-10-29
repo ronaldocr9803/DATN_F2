@@ -112,20 +112,22 @@ def init_model():
 CLASS_NAMES = ["__background__", "car","pool"]
 
 def get_prediction(model, img_path, threshold):
-  img = Image.open(img_path) # Load the image
-  my_transform = transforms.Compose([transforms.ToTensor()]) # Defing PyTorch Transform
-  img = my_transform(img) # Apply the transform to the image
-  pred = model([img]) # Pass the image to the model
-  # pdb.set_trace()
-  pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction Score
-  pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
-  pred_score = list(pred[0]['scores'].detach().numpy())
-  pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
-  pred_boxes = pred_boxes[:pred_t+1]
-  pred_class = pred_class[:pred_t+1]
-  # print(len(pred_boxes))
-  # print(pred)
-  return pred_boxes, pred_class
+    img = Image.open(img_path) # Load the image
+    my_transform = transforms.Compose([transforms.ToTensor()]) # Defing PyTorch Transform
+    img = my_transform(img) # Apply the transform to the image
+    pred = model([img]) # Pass the image to the model
+    # pdb.set_trace()
+    pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction Score
+    pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
+    pred_score = list(pred[0]['scores'].detach().numpy())
+    import ipdb; ipdb.set_trace()
+    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
+    pred_boxes = pred_boxes[:pred_t+1]
+    pred_class = pred_class[:pred_t+1]
+    pred_score = pred_score[:pred_t+1]
+    # print(len(pred_boxes))
+    # print(pred)
+    return pred_boxes, pred_class, pred_score
 
 
 
@@ -153,12 +155,24 @@ if __name__ == "__main__":
                 format=BBFormat.XYX2Y2
             )
             myBoundingBoxes.addBoundingBox(gt_boundingBox)
-        image_path = glob.glob(os.path.join('validating_data/', "{}".format()))
-        boxes, pred_cls = get_prediction(model, image_path, 0.5) # Get predictions
-            # import ipdb; ipdb.set_trace()
+        image_path = glob.glob(os.path.join('validating_data/', "{}.jpg".format(target["img_name"])))[0]
+        pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
+        for idx_detect in range(len(pred_boxes)):
+            gt_boundingBox = BoundingBox(
+                imageName = target["img_name"],
+                classId = pred_class[idx_detect],
+                classConfidence = pred_score[idx_detect],
+                x = target['boxes'][idx_detect][0][0].item() ,y = target['boxes'][idx_detect][0][1].item(),
+                w = target['boxes'][idx_detect][1][0].item(), h=target['boxes'][idx_detect][1][1].item(),
+                typeCoordinates = CoordinatesType.Absolute,
+                bbType=BBType.Detected,
+                format=BBFormat.XYX2Y2
+            )
+            myBoundingBoxes.addBoundingBox(gt_boundingBox)            
+        import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
     for image_path in imgs:
-        boxes, pred_cls = get_prediction(model, image_path, 0.5) # Get predictions
+        pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
         import ipdb; ipdb.set_trace()
 
 
