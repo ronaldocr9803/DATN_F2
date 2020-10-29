@@ -120,7 +120,7 @@ def get_prediction(model, img_path, threshold):
     pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction Score
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
     pred_score = list(pred[0]['scores'].detach().numpy())
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
     pred_boxes = pred_boxes[:pred_t+1]
     pred_class = pred_class[:pred_t+1]
@@ -157,23 +157,38 @@ if __name__ == "__main__":
             myBoundingBoxes.addBoundingBox(gt_boundingBox)
         image_path = glob.glob(os.path.join('validating_data/', "{}.jpg".format(target["img_name"])))[0]
         pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
+        # import ipdb; ipdb.set_trace()
         for idx_detect in range(len(pred_boxes)):
-            gt_boundingBox = BoundingBox(
+            detected_boundingBox = BoundingBox(
                 imageName = target["img_name"],
                 classId = pred_class[idx_detect],
                 classConfidence = pred_score[idx_detect],
-                x = target['boxes'][idx_detect][0][0].item() ,y = target['boxes'][idx_detect][0][1].item(),
-                w = target['boxes'][idx_detect][1][0].item(), h=target['boxes'][idx_detect][1][1].item(),
+                x = pred_boxes[idx_detect][0][0] ,y = pred_boxes[idx_detect][0][1],
+                w = pred_boxes[idx_detect][1][0], h=pred_boxes[idx_detect][1][1],
                 typeCoordinates = CoordinatesType.Absolute,
                 bbType=BBType.Detected,
                 format=BBFormat.XYX2Y2
             )
-            myBoundingBoxes.addBoundingBox(gt_boundingBox)            
-        import ipdb; ipdb.set_trace()
-        # import ipdb; ipdb.set_trace()
-    for image_path in imgs:
-        pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
-        import ipdb; ipdb.set_trace()
+            myBoundingBoxes.addBoundingBox(detected_boundingBox)         
+    # Create an evaluator object in order to obtain the metrics
+    evaluator = Evaluator()
+        # Get metrics with PASCAL VOC metrics
+    metricsPerClass = evaluator.GetPascalVOCMetrics(
+        myBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
+        IOUThreshold=0.3,  # IOU threshold
+        method=MethodAveragePrecision.EveryPointInterpolation)  # As the official matlab code
+    print("Average precision values per class:\n")
+    # Loop through classes to obtain their metrics
+    for mc in metricsPerClass:
+        # Get metric values per each class
+        c = mc['class']
+        precision = mc['precision']
+        recall = mc['recall']
+        average_precision = mc['AP']
+        ipre = mc['interpolated precision']
+        irec = mc['interpolated recall']
+        # Print AP per class
+        print('%s: %f' % (c, average_precision))   
+    
 
 
-    print(CLASS_NAMES)
