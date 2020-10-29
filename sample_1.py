@@ -142,6 +142,20 @@ if __name__ == "__main__":
     myBoundingBoxes = BoundingBoxes()
     for idx in range(len(dataset_test)):
         img, target = dataset_test.__getitem__(idx)
+        for i in range(len(target['boxes'])):
+            gt_boundingBox = BoundingBox(
+                imageName = target["img_name"],
+                classId = CLASS_NAMES[target['labels'][i].item()],
+                x = target['boxes'][i][0].item() ,y = target['boxes'][i][1].item(),
+                w = target['boxes'][i][2].item(), h=target['boxes'][i][3].item(),
+                typeCoordinates = CoordinatesType.Absolute,
+                bbType=BBType.GroundTruth,
+                format=BBFormat.XYX2Y2
+            )
+            myBoundingBoxes.addBoundingBox(gt_boundingBox)
+        image_path = glob.glob(os.path.join('validating_data/', "{}".format()))
+        boxes, pred_cls = get_prediction(model, image_path, 0.5) # Get predictions
+            # import ipdb; ipdb.set_trace()
         # import ipdb; ipdb.set_trace()
     for image_path in imgs:
         boxes, pred_cls = get_prediction(model, image_path, 0.5) # Get predictions
