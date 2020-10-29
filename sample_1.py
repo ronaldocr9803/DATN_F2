@@ -156,6 +156,8 @@ if __name__ == "__main__":
             )
             myBoundingBoxes.addBoundingBox(gt_boundingBox)
         image_path = glob.glob(os.path.join('validating_data/', "{}.jpg".format(target["img_name"])))[0]
+        print("predict {}".format(target["img_name"]))
+        #failed at predict 000003085
         pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
         # import ipdb; ipdb.set_trace()
         for idx_detect in range(len(pred_boxes)):
