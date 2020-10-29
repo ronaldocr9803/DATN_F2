@@ -9,6 +9,9 @@ from train import build_model, get_transform
 from dataset import SatelliteDataset
 import transforms as T
 import utils
+import glob
+from PIL import Image
+from torchvision import datasets, transforms
 
 def init_model():
     model = build_model(3)
@@ -40,8 +43,17 @@ def get_prediction(model, img_path, threshold):
 
 
 if __name__ == "__main__":
-    dataset_test = SatelliteDataset('test_data_images/test_data_images/images/', get_transform(train=False))
-    data_loader_test = torch.utils.data.DataLoader(
-        dataset_test, batch_size=1, shuffle=False, num_workers=4,
-        collate_fn=utils.collate_fn)
+    # dataset_test = SatelliteDataset('validating_data/', get_transform(train=False))
+    # data_loader_test = torch.utils.data.DataLoader(
+    #     dataset_test, batch_size=1, shuffle=False, num_workers=4,
+    #     collate_fn=utils.collate_fn)
+    model = init_model()
+    imgs = glob.glob(os.path.join('validating_data/', "*"))
+    # rand_img = random.sample(imgs, 1) 
+    # import ipdb; ipdb.set_trace()
+    for image_path in imgs:
+        boxes, pred_cls = get_prediction(model, image_path, 0.5) # Get predictions
+        import ipdb; ipdb.set_trace()
+
+
     print(CLASS_NAMES)
