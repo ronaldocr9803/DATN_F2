@@ -31,10 +31,9 @@ class SatelliteDataset(torch.utils.data.Dataset):
 
         img_name = self.lst_images[idx]
         img_path = os.path.join(self.data_dir, img_name)
-        # import ipdb; ipdb.set_trace()
         img = Image.open(img_path).convert("RGB")
 
-        anno_dir = self.base_path + '/data/training_data/labels'
+        anno_dir = self.base_path + '/training_data/training_data/labels'
         anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.xml')
         annotations = []
         tree = ET.parse(anno_path)  
@@ -89,10 +88,13 @@ class SatelliteDataset(torch.utils.data.Dataset):
 
         target = {}
         target["boxes"] = boxes
+        target["img_name"] = img_path.split("/")[-1].split(".")[0]
         target["labels"] = labels
         target["image_id"] = image_id
         target["area"] = area
         target["iscrowd"] = iscrowd
+        
+        # import ipdb; ipdb.set_trace()
 
         if self.transforms is not None:
             img, target = self.transforms(img, target)
@@ -103,7 +105,7 @@ class SatelliteDataset(torch.utils.data.Dataset):
         return len(self.lst_images)
 
 if __name__ == "__main__":
-    a= SatelliteDataset('data/training_data/images')
+    a= SatelliteDataset('validating_data/')
     a.__getitem__(20)
-    # import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
  
