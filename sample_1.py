@@ -182,6 +182,17 @@ if __name__ == "__main__":
             myBoundingBoxes.addBoundingBox(detected_boundingBox)         
     # Create an evaluator object in order to obtain the metrics
     evaluator = Evaluator()
+    ##############################################################
+    # VOC PASCAL Metrics
+    ##############################################################
+    # Plot Precision x Recall curve
+    evaluator.PlotPrecisionRecallCurve(
+    myBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
+    IOUThreshold=0.3,  # IOU threshold
+    method=MethodAveragePrecision.EveryPointInterpolation,  # As the official matlab code
+    showAP=True,  # Show Average Precision in the title of the plot
+    showInterpolatedPrecision=True,
+    savePath = "./fig")  # Plot the interpolated precision curve
         # Get metrics with PASCAL VOC metrics
     metricsPerClass = evaluator.GetPascalVOCMetrics(
         myBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
