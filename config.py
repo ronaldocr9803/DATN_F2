@@ -10,7 +10,15 @@ cfg = __C
 
 #
 # Training options
-#
+# Size of the pooled region after RoI pooling
+__C.POOLING_SIZE = 7
+
+# Anchor scales for RPN      #[8,16,32]
+__C.ANCHOR_SCALES = (32, 64, 128, 256, 512)     
+
+# Anchor ratios for RPN
+__C.ANCHOR_RATIOS = (0.5, 1.0, 2.0) #[0.5,1,2]
+
 __C.MODEL = edict()
 
 # Initial learning rate
@@ -52,8 +60,6 @@ __C.MODEL.BOX_BATCH_SIZE_PER_IMAGE = 512
 #proportion of positive proposals in a mini-batch during training of the classification head
 __C.MODEL.BOX_POSITIVE_FRACTION = 0.25
 
-# __C.TRAIN.BBOX_REG_WEIGHTS =
-
 # Use RPN to detect objects
 # IOU >= thresh: positive example. minimum IoU between the anchor and the GT box so that they can be
 # considered as positive during training of the RPN.
@@ -66,7 +72,7 @@ __C.MODEL.RPN_BG_IOU_THRESH = 0.3
 # proportion of positive anchors in a mini-batch during training of the RPN
 __C.MODEL.RPN_POSITIVE_FRACTION = 0.5
 # number of anchors that are sampled during training of the RPN for computing the loss
-__C.TRAIN.RPN_BATCH_SIZE_PER_IMAGE = 256
+__C.MODEL.RPN_BATCH_SIZE_PER_IMAGE = 256
 # NMS threshold used on RPN proposals
 __C.MODEL.RPN_NMS_THRESH = 0.5
 # Number of top scoring boxes to keep before apply NMS to RPN proposals 
@@ -80,21 +86,8 @@ __C.MODEL.RPN_PRE_NMS_TOP_N_TEST = 1000
 #number of proposals to keep after applying NMS during testing
 __C.MODEL.RPN_POST_NMS_TOP_N_TEST = 1000
 
-
-
 # Root directory of project
 __C.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), '..', '..', '..'))
 
 # Data directory
 __C.DATA_DIR = osp.abspath(osp.join(__C.ROOT_DIR, 'data'))
-
-__C.POOLING_MODE = 'crop'
-
-# Size of the pooled region after RoI pooling
-__C.POOLING_SIZE = 7
-
-# Anchor scales for RPN      #[8,16,32]
-__C.ANCHOR_SCALES = (32, 64, 128, 256, 512)     
-
-# Anchor ratios for RPN
-__C.ANCHOR_RATIOS = (0.5, 1.0, 2.0) #[0.5,1,2]

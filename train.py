@@ -15,6 +15,8 @@ from engine import train_one_epoch, evaluate
 import utils
 import transforms as T
 from utils import save_checkpoint
+from model import fasterrcnn_resnet101_fpn
+from config import cfg
 
 def build_model(num_classes):
     # load an instance segmentation model pre-trained on COCO
@@ -38,7 +40,8 @@ def get_transform(train):
 
 if __name__ == "__main__":
     tb = SummaryWriter()
-
+    # import ipdb; ipdb.set_trace()
+    # model = fasterrcnn_resnet101_fpn(pretrained = True)
     # use our dataset and defined transformations
     dataset = SatelliteDataset('data/training_data/images', get_transform(train=True))
     dataset_test = SatelliteDataset('data/validating_data/', get_transform(train=False))
@@ -54,24 +57,24 @@ if __name__ == "__main__":
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    # our dataset has two classes only - background and beagle
     num_classes = 3
 
-    # get the model using our helper function
-    model = build_model(num_classes)
-    # move model to the right device
+    model = fasterrcnn_resnet101_fpn(pretrained = False)
+    # model =  build_model(num_classes)
+
     model.to(device)
 
     # construct an optimizer
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(params, lr=0.005,
-                                momentum=0.9, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(params, lr=cfg.MODEL.LEARNING_RATE,
+                                momentum = cfg.MODEL.MOMENTUM
+                                ,weight_decay = cfg.MODEL.WEIGHT_DECAY)
 
     # and a learning rate scheduler which decreases the learning rate by
     # 10x every 3 epochs
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=3,
-                                                   gamma=0.1)
+                                                   step_size=cfg.MODEL.STEPSIZE,
+                                                   gamma=cfg.MODEL.GAMMA)
     
     # number of epochs
     num_epochs = 10
