@@ -1,0 +1,8 @@
+mkdir data
+rclone copy -P thangld:"Colab Notebooks"/new_sateliteImage/archive.zip .
+unzip archive.zip
+rclone copy -P thangld:"Colab Notebooks"/new_sateliteImage/validating.zip .
+unzip validating.zip
+
+
+git config --global user.email "ronaldocr9803@gmail.com"
