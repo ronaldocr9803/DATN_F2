@@ -12,7 +12,10 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 import logging
 
-def init_model():
+def init_model(model_name):
+    # if model_name == "resnet50":
+    #     model = build_model_resnet50fpn(3)
+    # elif model_name == "resnet101":
     model = build_model_resnet50fpn(3)
     device = torch.device('cpu')
     checkpoint = torch.load("./checkpoint/chkpoint_colab_9.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
@@ -32,10 +35,7 @@ def get_prediction(model, img_path, threshold):
     pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction Score
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
     pred_score = list(pred[0]['scores'].detach().numpy())
-    # print(pred_score)
-    # import ipdb; ipdb.set_trace()
     pred_t = [pred_score.index(x) for x in pred_score if x > threshold] # Get list of index with score greater than threshold.
-    # print(pred_t)
     if not pred_t:
         return [], [], []
     else:
@@ -55,8 +55,6 @@ if __name__ == "__main__":
         collate_fn=utils.collate_fn)
     model = init_model()
     imgs = glob.glob(os.path.join('validating_data/', "000003085.jpg"))
-    # rand_img = random.sample(imgs, 1) 
-    # import ipdb; ipdb.set_trace()
     myBoundingBoxes = BoundingBoxes()
     if not os.path.exists('./groundtruths'):
         os.makedirs('groundtruths')
@@ -82,27 +80,14 @@ if __name__ == "__main__":
             #failed at predict 000003085
             pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
             if pred_boxes is None:
-                logging.info("Failes at {}".format(img_name))
+                # logging.info("Failes at {}".format(img_name))
                 f_predict.write("")
                 continue
-            # import ipdb; ipdb.set_trace()
             for idx_detect in range(len(pred_boxes)):
-                f_predict.write("{} {} {} {} {}\n".format(pred_class[idx_detect],
+                f_predict.write("{} {} {} {} {} {}\n".format(pred_class[idx_detect],
                                                     pred_score[idx_detect],
                                                     pred_boxes[idx_detect][0][0],
                                                     pred_boxes[idx_detect][0][1],
                                                     pred_boxes[idx_detect][1][0],
                                                     pred_boxes[idx_detect][1][1]))
         f_predict.close()                                                    
-
-            #     detected_boundingBox = BoundingBox(
-            #         imageName = target["img_name"],
-            #         classId = pred_class[idx_detect],
-            #         classConfidence = pred_score[idx_detect],
-            #         x = pred_boxes[idx_detect][0][0] ,y = pred_boxes[idx_detect][0][1],
-            #         w = pred_boxes[idx_detect][1][0], h=pred_boxes[idx_detect][1][1],
-            #         typeCoordinates = CoordinatesType.Absolute,
-            #         bbType=BBType.Detected,
-            #         format=BBFormat.XYX2Y2
-            #     )
-            # myBoundingBoxes.addBoundingBox(detected_boundingBox)    
