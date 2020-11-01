@@ -25,6 +25,9 @@ class SatelliteDataset(torch.utils.data.Dataset):
         # print(annotations1)
         # self.annotations = list(annotations1.values())  # don't need the dict keys
         # self.annotations = [a for a in annotations if a['regions']]
+
+    def __getname__(self, idx):
+        return self.lst_images[idx]
         
 
     def __getitem__(self, idx):
@@ -33,7 +36,7 @@ class SatelliteDataset(torch.utils.data.Dataset):
         img_path = os.path.join(self.data_dir, img_name)
         img = Image.open(img_path).convert("RGB")
 
-        anno_dir = self.base_path + '/training_data/training_data/labels'
+        anno_dir = self.base_path + '/data/training_data/labels'
         anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.xml')
         annotations = []
         tree = ET.parse(anno_path)  
@@ -88,7 +91,7 @@ class SatelliteDataset(torch.utils.data.Dataset):
 
         target = {}
         target["boxes"] = boxes
-        target["img_name"] = img_path.split("/")[-1].split(".")[0]
+        # target["img_name"] = img_path.split("/")[-1].split(".")[0]
         target["labels"] = labels
         target["image_id"] = image_id
         target["area"] = area
