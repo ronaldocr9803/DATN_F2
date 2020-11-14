@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 import random
 import csv
 
-class SatelliteDataset(torch.utils.data.Dataset):
+class RasterDataset(torch.utils.data.Dataset):
     def __init__(self, data_dir, transforms=None):
         self.base_path = os.getcwd()
         self.data_dir = data_dir
@@ -36,8 +36,8 @@ class SatelliteDataset(torch.utils.data.Dataset):
         img_path = os.path.join(self.data_dir, img_name)
         img = Image.open(img_path).convert("RGB")
 
-        anno_dir = self.base_path + '/data/training_data/labels'
-        anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.xml')
+        anno_dir = self.base_path + '/data/labels'
+        anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.txt')
         annotations = []
         tree = ET.parse(anno_path)  
         root = tree.getroot()
@@ -108,7 +108,7 @@ class SatelliteDataset(torch.utils.data.Dataset):
         return len(self.lst_images)
 
 if __name__ == "__main__":
-    a= SatelliteDataset('validating_data/')
+    a= RasterDataset('validating_data/')
     a.__getitem__(20)
     import ipdb; ipdb.set_trace()
  
