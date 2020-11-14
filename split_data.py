@@ -6,6 +6,7 @@ from tqdm import tqdm
 import glob
 import shutil
 
+random.seed(42)
 # import ipdb; ipdb.set_trace()
 if not os.path.exists('./data/training_data'):
 	os.makedirs('./data/training_data')
@@ -42,25 +43,3 @@ for i in tqdm(range(len(img_test_path_lst))):
    des_path = os.path.join(".","data","testing_data",img_name)
    shutil.copy(img_test_path_lst[i], des_path)
 
-
-
-# sub_dir = base_dir + '/data/training_data/images/'
-# # labels = base_dir + '/data/training_data/labels/'
-# image_dir = base_dir + '/data/training_data/'
-# image_paths = os.listdir(image_dir)
-# image_paths = [a for a in image_paths if a[-4:] == ".jpg"]
-# # import ipdb; ipdb.set_trace()
-# for i in tqdm(image_paths):
-#    move(image_dir + i, sub_dir + i )
-# import ipdb; ipdb.set_trace()
-# # randomly select subsample
-# num_val_sample = int(round(len(image_paths) * 0.3))
-# # import ipdb; ipdb.set_trace()
-# random_NUM = random.sample(image_paths, 300) 
-# # copy subsample into subsample directory
-# from tqdm import tqdm
-# for i in tqdm(random_NUM):
-#    move(image_dir + i, sub_dir + i )
-# from tqdm import tqdm
-# for i in tqdm(os.listdir(sub_dir)):
-#    move(sub_dir + i, image_dir + i )
