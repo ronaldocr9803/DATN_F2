@@ -8,7 +8,7 @@ from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 
 
 def fasterrcnn_resnet101_fpn(pretrained=False, progress=True,
-                            num_classes=3, pretrained_backbone=True,
+                            num_classes=2, pretrained_backbone=True,
                              trainable_backbone_layers=3, **kwargs):
     assert trainable_backbone_layers <= 5 and trainable_backbone_layers >= 0
     # dont freeze any layers if pretrained model or backbone is not used
