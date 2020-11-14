@@ -1,4 +1,4 @@
-from dataset import SatelliteDataset
+from dataset import RasterDataset
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    num_classes = 3
+    num_classes = 2
 
     model = fasterrcnn_resnet101_fpn(pretrained = False)
     # model =  build_model(num_classes)
