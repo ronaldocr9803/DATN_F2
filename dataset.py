@@ -36,8 +36,8 @@ class RasterDataset(torch.utils.data.Dataset):
         img_path = os.path.join(self.data_dir, img_name)
         img = Image.open(img_path).convert("RGB")
 
-        anno_dir = self.base_path + '/data/labels'
-        anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.txt')
+        anno_dir = self.base_path + '/data/labels_xml'
+        anno_path = os.path.join(anno_dir, img_name.split('.')[0] + '.xml')
         annotations = []
         tree = ET.parse(anno_path)  
         root = tree.getroot()
