@@ -3,7 +3,7 @@ from lib.BoundingBoxes import BoundingBoxes
 from lib.Evaluator import *
 from lib.utils import *
 from train import build_model_resnet50fpn, get_transform
-from dataset import SatelliteDataset
+from dataset import RasterDataset
 import transforms as T
 import utils
 import glob
@@ -11,19 +11,21 @@ from PIL import Image
 from torchvision import datasets, transforms
 from tqdm import tqdm
 import logging
+from model import fasterrcnn_resnet101_fpn
+
 
 def init_model(model_name):
     # if model_name == "resnet50":
     #     model = build_model_resnet50fpn(3)
     # elif model_name == "resnet101":
-    model = build_model_resnet50fpn(3)
+    model = fasterrcnn_resnet101_fpn()
     device = torch.device('cpu')
-    checkpoint = torch.load("./checkpoint/chkpoint_colab_9.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
+    checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
     model.load_state_dict(checkpoint['state_dict'])
     model.eval() #evaluation mode
     return model 
 
-CLASS_NAMES = ["__background__", "car","pool"]
+CLASS_NAMES = ["__background__", "tree"]
 
 def get_prediction(model, img_path, threshold):
     img = Image.open(img_path) # Load the image
@@ -49,7 +51,7 @@ def get_prediction(model, img_path, threshold):
         return pred_boxes, pred_class, pred_score
 
 if __name__ == "__main__":
-    dataset_test = SatelliteDataset('data/validating_data/', get_transform(train=False))
+    dataset_test = RasterDataset('data/validating_data/', get_transform(train=False))
     data_loader_test = torch.utils.data.DataLoader(
         dataset_test, batch_size=1, shuffle=False, num_workers=4,
         collate_fn=utils.collate_fn)
