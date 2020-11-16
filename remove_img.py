@@ -6,11 +6,16 @@ import cv2
 import glob
 from shutil import copyfile, move
 
+if not os.path.exists('./data/no_bb_labels'):
+	os.makedirs('./data/no_bb_labels')
+if not os.path.exists('./data/no_bb_images'):
+	os.makedirs('./data/no_bb_images')
 lst_empty_txt = [a for a in glob.glob(os.path.join(".", "data", "labels","*")) if os.stat(a).st_size==0]
 des_labels_empty = "./data/no_bb_labels"
 src_img = "./data/images"
 des_img_empty = "./data/no_bb_images"
 
+# import ipdb; ipdb.set_trace()
 for i in tqdm(range(len(lst_empty_txt))):
    img_name = lst_empty_txt[i].split("/")[-1][:-4]
    des_path = os.path.join(".","data","training_data",img_name)
