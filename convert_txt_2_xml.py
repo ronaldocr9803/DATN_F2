@@ -21,7 +21,7 @@ txt_folder = './data/labels'
 
 # (NOTICE #3)
 # Change this labels
-labels = ['tree']
+labels = ["background","tree"]
 global label
 label = ''
 
@@ -121,7 +121,7 @@ for line in tqdm(fw):
         object = etree.Element("object")
         ####################object - element##################
         name = etree.SubElement(object, "name")
-        name.text = "%s" % (label)
+        name.text = "%s" % ("1")
 
         bndbox = etree.SubElement(object, "bndbox")
         #####sub_sub########
