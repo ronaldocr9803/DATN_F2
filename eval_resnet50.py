@@ -2,8 +2,6 @@ from lib.BoundingBox import BoundingBox
 from lib.BoundingBoxes import BoundingBoxes
 from lib.Evaluator import *
 from lib.utils import *
-from train import build_model_resnet50fpn, get_transform
-from dataset import SatelliteDataset
 import transforms as T
 import utils
 import glob
