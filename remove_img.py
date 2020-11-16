@@ -16,5 +16,5 @@ for i in tqdm(range(len(lst_empty_txt))):
    des_path = os.path.join(".","data","training_data",img_name)
    #move image 
    move(os.path.join(src_img, "{}.png".format(img_name)), os.path.join(des_img_empty,"{}.png".format(img_name)))
-   #move labels
+   #move labels a
    move(lst_empty_txt[i], os.path.join(des_labels_empty,"{}.txt".format(img_name)))
