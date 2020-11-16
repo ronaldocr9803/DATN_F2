@@ -12,3 +12,4 @@
 *.txt
 /runs
 /lib/__pycache__
+*zip
