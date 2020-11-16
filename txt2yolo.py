@@ -23,7 +23,8 @@ for i in tqdm(range(len(txt_path_lst))):
     img_height, img_width, _ = img.shape
     # import ipdb; ipdb.set_trace()
     for j in range(len(lst)):
-        x1, y1, x2, y2 = [int(k) for k in lst[j].strip().split(" ")]
+        # import ipdb; ipdb.set_trace()
+        x1, y1, x2, y2 = [int(k) for k in lst[j].strip().split(" ")[1:]]
         x_center = (float(x1+x2)/2)/img_width
         y_center = (float(y1+y2)/2)/img_height
         width = float(x2-x1)/img_width
