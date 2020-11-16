@@ -2,7 +2,7 @@ from lib.BoundingBox import BoundingBox
 from lib.BoundingBoxes import BoundingBoxes
 from lib.Evaluator import *
 from lib.utils import *
-from train import build_model_resnet50fpn, get_transform
+from train import  get_transform
 from dataset import RasterDataset
 import transforms as T
 import utils
@@ -14,13 +14,19 @@ import logging
 from model import fasterrcnn_resnet101_fpn
 
 
-def init_model(model_name):
+def init_model():
     # if model_name == "resnet50":
     #     model = build_model_resnet50fpn(3)
     # elif model_name == "resnet101":
+    if torch.cuda.is_available():  
+        dev = "cuda:0" 
+    else:  
+        dev = "cpu"  
     model = fasterrcnn_resnet101_fpn()
-    device = torch.device('cpu')
-    checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
+    device = torch.device(dev)
+    # checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
+    checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': dev}) #read from last checkpoint
+
     model.load_state_dict(checkpoint['state_dict'])
     model.eval() #evaluation mode
     return model 
@@ -60,7 +66,7 @@ if __name__ == "__main__":
     myBoundingBoxes = BoundingBoxes()
     if not os.path.exists('./groundtruths'):
         os.makedirs('groundtruths')
-    if not os.path.exists('././detections/'):
+    if not os.path.exists('./detections/'):
         os.makedirs('./detections/')
     
     for idx in tqdm(range(len(dataset_test))):

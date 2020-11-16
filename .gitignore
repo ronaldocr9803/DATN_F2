@@ -9,3 +9,6 @@
 /engine.pyc
 /test_data_images
 /transforms.pyc
+*.txt
+/runs
+*.pyc
