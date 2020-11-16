@@ -5,7 +5,6 @@
 /checkpoint_ssd300.pth.tar
 /chkpoint_
 /coco_utils.pyc
-/data
 /engine.pyc
 /test_data_images
 /transforms.pyc
