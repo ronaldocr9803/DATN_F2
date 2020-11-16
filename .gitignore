@@ -11,4 +11,4 @@
 /transforms.pyc
 *.txt
 /runs
-*.pyc
+/lib/__pycache__
