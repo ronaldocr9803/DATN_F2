@@ -43,24 +43,24 @@ if __name__ == "__main__":
     # import ipdb; ipdb.set_trace()
     # model = fasterrcnn_resnet101_fpn(pretrained = True)
     # use our dataset and defined transformations
-    dataset = SatelliteDataset('data/training_data/images', get_transform(train=True))
-    dataset_test = SatelliteDataset('data/validating_data/', get_transform(train=False))
+    dataset = RasterDataset('data/training_data/', get_transform(train=True))
+    dataset_test = RasterDataset('data/validating_data/', get_transform(train=False))
 
     # define training and validation data loaders
     data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=2, shuffle=True, num_workers=4,
+        dataset, batch_size=16, shuffle=True, num_workers=4,
         collate_fn=utils.collate_fn)
 
     data_loader_test = torch.utils.data.DataLoader(
-        dataset_test, batch_size=1, shuffle=False, num_workers=4,
+        dataset_test, batch_size=8, shuffle=False, num_workers=4,
         collate_fn=utils.collate_fn)
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     num_classes = 2
 
-    model = fasterrcnn_resnet101_fpn(pretrained = False)
-    # model =  build_model(num_classes)
+    # model = fasterrcnn_resnet101_fpn(pretrained = False)
+    model =  build_model(num_classes)
 
     model.to(device)
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                                                    gamma=cfg.MODEL.GAMMA)
     
     # number of epochs
-    num_epochs = 10
+    num_epochs = 15
     #start training
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
