@@ -2,7 +2,7 @@ from lib.BoundingBox import BoundingBox
 from lib.BoundingBoxes import BoundingBoxes
 from lib.Evaluator import *
 from lib.utils import *
-from train import  get_transform
+from train import  get_transform, build_model
 from dataset import RasterDataset
 import transforms as T
 import utils
@@ -12,37 +12,42 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 import logging
 from model import fasterrcnn_resnet101_fpn
-
+import time 
 
 def init_model():
     # if model_name == "resnet50":
     #     model = build_model_resnet50fpn(3)
     # elif model_name == "resnet101":
-    if torch.cuda.is_available():  
-        dev = "cuda:0" 
-    else:  
-        dev = "cpu"  
-    model = fasterrcnn_resnet101_fpn()
-    device = torch.device(dev)
+    # if torch.cuda.is_available():  
+    #     dev = "cuda:0" 
+    # else:  
+    #     dev = "cpu"  
+    # model = fasterrcnn_resnet101_fpn()
+    model = build_model(2)
+    device = torch.device("cuda:0")
     # checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': 'cpu'}) #read from last checkpoint
-    checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt", map_location={'cuda:0': dev}) #read from last checkpoint
-
+    checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt",  map_location= "cuda:0")
     model.load_state_dict(checkpoint['state_dict'])
     model.eval() #evaluation mode
     return model 
 
 CLASS_NAMES = ["__background__", "tree"]
 
-def get_prediction(model, img_path, threshold):
-    img = Image.open(img_path) # Load the image
+def get_prediction(model, img, threshold):
+    # img = Image.open(img_path) # Load the image
     my_transform = transforms.Compose([transforms.ToTensor()]) # Defing PyTorch Transform
     img = my_transform(img) # Apply the transform to the image
     # import ipdb; ipdb.set_trace()
-    pred = model([img]) # Pass the image to the model
+    model = model.to(torch.device("cuda:0"))
+    start = time.time()
+    pred = model([img.to(torch.device("cuda:0"))]) # Pass the image to the model
+    end = time. time()
+    # print(end-start)
     # pdb.set_trace()
-    pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction Score
-    pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
-    pred_score = list(pred[0]['scores'].detach().numpy())
+    # import ipdb; ipdb.set_trace()
+    pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].cpu().numpy())] # Get the Prediction Score
+    pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().cpu().numpy())] # Bounding boxes
+    pred_score = list(pred[0]['scores'].detach().cpu().numpy())
     pred_t = [pred_score.index(x) for x in pred_score if x > threshold] # Get list of index with score greater than threshold.
     if not pred_t:
         return [], [], []
@@ -55,7 +60,6 @@ def get_prediction(model, img_path, threshold):
         # print(len(pred_boxes))
         # print(pred)
         return pred_boxes, pred_class, pred_score
-
 if __name__ == "__main__":
     dataset_test = RasterDataset('data/validating_data/', get_transform(train=False))
     data_loader_test = torch.utils.data.DataLoader(
@@ -86,9 +90,11 @@ if __name__ == "__main__":
         with open('./detections/{}.txt'.format(img_name.split(".")[0]), 'w') as f_predict:
             # logging.info("predict {}".format(img_name))
             #failed at predict 000003085
-            pred_boxes, pred_class, pred_score = get_prediction(model, image_path, 0.5) # Get predictions
+            # img = Image.open(image_path) # Load the image
+            img = cv2.imread(image_path)
+            pred_boxes, pred_class, pred_score = get_prediction(model, img, 0.5) # Get predictions
             if pred_boxes is None:
-                # logging.info("Failes at {}".format(img_name))
+                # logging.info("Failes at {}".format(iđây a mg_name))
                 f_predict.write("")
                 continue
             for idx_detect in range(len(pred_boxes)):
