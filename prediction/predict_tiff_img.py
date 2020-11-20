@@ -50,15 +50,20 @@ def get_prediction(model, img_arr, confidence):
     
     """
     # img = Image.open(img_path)
-    transform = T.Compose([T.ToTensor()])
-    img = transform(img_arr)#.to(device)
-    pred = model([img])
+    my_transform = T.Compose([T.ToTensor()]) # Defing PyTorch Transform
+    img = my_transform(img_arr)#.to(device)
+    model = model.to(torch.device("cuda:0"))
+    # pred = model([img])
+    pred = model([img.to(torch.device("cuda:0"))])
     pred_class = [CLASS_NAMES[i] for i in list(pred[0]['labels'].cpu().numpy())]
     pred_boxes = pred[0]['boxes'].detach().cpu().numpy()
     # pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().cpu().numpy())]
     pred_score = list(pred[0]['scores'].detach().cpu().numpy())
 
-    pred_t = [pred_score.index(x) for x in pred_score if x>confidence][-1]
+    pred_t = [pred_score.index(x) for x in pred_score if x>confidence]
+    if len(pred_t) == 0:
+        return None
+    pred_t = pred_t[-1]
     pred_boxes = pred_boxes[:pred_t+1]
     pred_class = pred_class[:pred_t+1]
     pred_score = pred_score[:pred_t+1]
@@ -111,6 +116,10 @@ def detect_object(model, img_arr, confidence=0.5, rect_th=1, text_size=0.35, tex
 
 
 def process_one_image(img_path, shfPath):
+
+    if not os.path.exists('./data/training_data'):
+        os.makedirs('./data/training_data')
+
     model = init_model()
     # img_path = "./W05_202003281250_RI_RSK_RSKA003603_RGB_2.tif"
     # shfPath = "./output1/with-shapely.shp"
@@ -147,6 +156,8 @@ def process_one_image(img_path, shfPath):
         crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
         # pred_img1 = get_prediction(model, crop, confidence=0.7)
         boxes = get_prediction(model, crop, confidence=0.7)
+        if boxes is None:
+            continue
         boxes['xmin'] = pd.to_numeric(boxes['xmin'])
         boxes['ymin'] = pd.to_numeric(boxes['ymin'])
         boxes['xmax'] = pd.to_numeric(boxes['xmax'])
@@ -177,7 +188,7 @@ def process_one_image(img_path, shfPath):
             predicted_boxes.label.values,
             max_output_size=predicted_boxes.shape[0],
             iou_threshold=0.5)
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
 
         # Recreate box dataframe
         image_detections = np.concatenate([
@@ -186,20 +197,24 @@ def process_one_image(img_path, shfPath):
             np.expand_dims(new_labels, axis=1)
         ], axis=1)
 
-        df = pd.DataFrame(
-            image_detections,
-            columns=["xmin", "ymin", "xmax", "ymax", "score", "label"])
-        df.label = df.label.str.decode("utf-8")
-        df['geometry'] = df.apply(lambda x: convert_xy_tif(x, dataset), axis=1)
-        df_res = gpd.GeoDataFrame(df, geometry='geometry')
-        df_res.to_file('./output_pred/with_shapely_pred.shp', driver='ESRI Shapefile')
+    df = pd.DataFrame(
+        new_boxes,
+        columns=["xmin", "ymin", "xmax", "ymax"])     #, "score", "label"])
+    # df.label = df.label.str.decode("utf-8")
+    df['geometry'] = df.apply(lambda x: convert_xy_tif(x, dataset), axis=1)
+    df_res = gpd.GeoDataFrame(df, geometry='geometry')
+    # import ipdb; ipdb.set_trace()
+    df_res.to_file('./output_pred/with_shapely_pred.shp', driver='ESRI Shapefile')
     print("-----------Done--------------")
     # import ipdb; ipdb.set_trace()
 
 
 
 if __name__ == "__main__":
-    lst_raster = ['W03_202003311249_RI_RSK_RSKA014702_RGB']
+    if not os.path.exists('./output_pred'):
+        os.makedirs('./output_pred')
+    # lst_raster = ['W03_202003311249_RI_RSK_RSKA014702_RGB']
+    lst_raster = ["W05_202003281250_RI_RSK_RSKA003603_RGB"]
     for raster in lst_raster:
         # print("Process {}...".format(raster))
         lst_raster_img = natsorted([i for i in os.listdir("../data/"+raster) if i[-4:]=='.tif'])

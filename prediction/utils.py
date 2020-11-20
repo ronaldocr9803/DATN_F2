@@ -2,6 +2,8 @@ import slidingwindow
 import tensorflow as tf
 from model import fasterrcnn_resnet101_fpn
 import torch
+from shapely.geometry import mapping, shape
+from shapely.geometry import box
 
 def init_model():
     # if model_name == "resnet50":
@@ -15,7 +17,7 @@ def init_model():
     model = fasterrcnn_resnet101_fpn()
     # device = torch.device("cuda:0") # device for gpu inference
     device = torch.device("cuda:0") # device for cpu inference
-    checkpoint = torch.load("./checkpoint/chkpoint_colab_14_19-11.pt", map_location="cuda:0") #read from last checkpoint
+    checkpoint = torch.load("./checkpoint/chkpoint_colab_14_19-11.pt", map_location= "cuda:0") #read from last checkpoint
     # checkpoint = torch.load("./checkpoint/chkpoint_colab_14.pt",  map_location= "cuda:0")
     model.load_state_dict(checkpoint['state_dict'])
     model.eval() #evaluation mode
