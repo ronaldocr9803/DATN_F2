@@ -48,11 +48,11 @@ if __name__ == "__main__":
 
     # define training and validation data loaders
     data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=16, shuffle=True, num_workers=4,
+        dataset, batch_size=4, shuffle=True, num_workers=4,
         collate_fn=utils.collate_fn)
 
     data_loader_test = torch.utils.data.DataLoader(
-        dataset_test, batch_size=8, shuffle=False, num_workers=4,
+        dataset_test, batch_size=4, shuffle=False, num_workers=4,
         collate_fn=utils.collate_fn)
     
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     #start training
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
-        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=10)
+        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=1000)
         # tb.add_scalar('Loss', total_loss, epoch)
         # update the learning rate
         lr_scheduler.step()

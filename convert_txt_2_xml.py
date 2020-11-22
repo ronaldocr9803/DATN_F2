@@ -48,10 +48,10 @@ def convert_label(txt_file):
 
 
 def extract_coor(txt_file):
-    x_min_rect = float(txt_file[1])
-    y_min_rect = float(txt_file[2])
-    x_max_rect = float(txt_file[3])
-    y_max_rect = float(txt_file[4])
+    x_min_rect = float(txt_file[0])
+    y_min_rect = float(txt_file[1])
+    x_max_rect = float(txt_file[2])
+    y_max_rect = float(txt_file[3])
 
     return x_min_rect, y_min_rect, x_max_rect, y_max_rect
 
