@@ -89,7 +89,7 @@ def evaluate(model, data_loader, epoch, device):
     # FIXME remove this and make paste_masks_in_image run on the GPU
     torch.set_num_threads(1)
     cpu_device = torch.device("cpu")
-    model.eval()
+    # model.eval()
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Test:'
 
@@ -102,18 +102,19 @@ def evaluate(model, data_loader, epoch, device):
         image = list(img.to(device) for img in image)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
-        model.train()
+        # model.train()
         loss_dict = model(image, targets)
         # import ipdb; ipdb.set_trace()
         losses = sum(loss for loss in loss_dict.values())
-        # import ipdb; ipdb.set_trace()
         # #option
         total_loss = total_loss + losses
 
         model.eval()
+
         torch.cuda.synchronize()
         model_time = time.time()
         outputs = model(image)
+        import ipdb; ipdb.set_trace()
 
         outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
         model_time = time.time() - model_time
