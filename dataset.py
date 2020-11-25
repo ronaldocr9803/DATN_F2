@@ -1,16 +1,17 @@
+import argparse
+import csv
+import glob
+import json
 import os
+import random
+import xml.etree.ElementTree as ET
+
 import numpy as np
+import pandas as pd
 import torch
 import torch.utils.data
 from PIL import Image
-import json
-import os
-import glob
-import pandas as pd
-import argparse
-import xml.etree.ElementTree as ET
-import random
-import csv
+
 
 class RasterDataset(torch.utils.data.Dataset):
     def __init__(self, data_dir, transforms=None):
@@ -20,11 +21,6 @@ class RasterDataset(torch.utils.data.Dataset):
         # load the annotations file, it also contain information of image names
         # load annotations
         self.lst_images = os.listdir(os.path.join(self.base_path , self.data_dir)) #'/training_data/training_data/images': data_dir
-        # import ipdb; ipdb.set_trace()
-        # annotations1 = json.load(open(os.path.join(data_dir, "via_region_data.json")))
-        # print(annotations1)
-        # self.annotations = list(annotations1.values())  # don't need the dict keys
-        # self.annotations = [a for a in annotations if a['regions']]
 
     def __getname__(self, idx):
         return self.lst_images[idx]
@@ -55,9 +51,7 @@ class RasterDataset(torch.utils.data.Dataset):
                         for subsubelem in subelem:
                             coords.append(float(subsubelem.text))
                         boxes.append(coords)
-                        # convert everything into a torch.Tensor
-                        # coords = torch.as_tensor(coords, dtype=torch.float32)
-                        # import ipdb; ipdb.set_trace()
+
                         xMin = coords[0]
                         yMin = coords[1]
                         xMax = coords[2]
@@ -69,7 +63,6 @@ class RasterDataset(torch.utils.data.Dataset):
                 yMin = max(0, yMin)
                 xMax = max(0, xMax)
                 yMax = max(0, yMax)
-
 
                 # ignore bounding boxes where minimum values are larger than
                 # max values and vice-versa (annotation errors)
@@ -84,7 +77,6 @@ class RasterDataset(torch.utils.data.Dataset):
         # labels = torch.from_numpy(labels.astype('long'))
         labels = torch.from_numpy(np.asarray(labels))
         image_id = torch.tensor([idx])
-        # import ipdb; ipdb.set_trace()
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
         # suppose all instances are not crowd
         iscrowd = torch.zeros((num_objs,), dtype=torch.int64)
@@ -97,11 +89,8 @@ class RasterDataset(torch.utils.data.Dataset):
         target["area"] = area
         target["iscrowd"] = iscrowd
         
-        # import ipdb; ipdb.set_trace()
-
         if self.transforms is not None:
             img, target = self.transforms(img, target)
-        # import ipdb; ipdb.set_trace()
         return img, target
 
     def __len__(self):

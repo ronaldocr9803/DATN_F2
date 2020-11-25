@@ -119,8 +119,8 @@ def detect_object(model, img_arr, confidence=0.5, rect_th=1, text_size=0.35, tex
 
 def process_one_image(img_path, shfPath, evaluate=False):
 
-    if not os.path.exists('./data/training_data'):
-        os.makedirs('./data/training_data')
+    # if not os.path.exists('./data/training_data'):
+    #     os.makedirs('./data/training_data')
 
     model = init_model()
     # img_path = "./W05_202003281250_RI_RSK_RSKA003603_RGB_2.tif"
@@ -238,28 +238,37 @@ def process_one_image(img_path, shfPath, evaluate=False):
             # Print AP per class
             print("Precision: {}: {}".format(c, total_TP/(total_TP + total_FP)))
             print('Recall: {}: {}'.format(c, total_TP/total_groundTruths))
-    else:
-        df['geometry'] = df.apply(lambda x: convert_xy_tif(x, dataset), axis=1)
-        df_res = gpd.GeoDataFrame(df[["xmin", "ymin", "xmax", "ymax","geometry"]], geometry='geometry')
-        import ipdb; ipdb.set_trace()
-        df_res.to_file('./output_pred/with_shapely_pred.shp', driver='ESRI Shapefile')
-        print("-----------Done--------------")
+
+    df['geometry'] = df.apply(lambda x: convert_xy_tif(x, dataset), axis=1)
+    df_res = gpd.GeoDataFrame(df[["xmin", "ymin", "xmax", "ymax","geometry"]], geometry='geometry')
+    # import ipdb; ipdb.set_trace()
+    df_res.to_file('./demo/output_pred/with_shapely_pred.shp', driver='ESRI Shapefile')
+    print("-----------Done--------------")
     # import ipdb; ipdb.set_trace()
 
 
 
 if __name__ == "__main__":
-    if not os.path.exists('./output_pred'):
-        os.makedirs('./output_pred')
+    import argparse
+    parser = argparse.ArgumentParser(description="Predcict with testing image and calculate Precision, Recall")
+    parser.add_argument("--image_path", type=str, help="Path to tif image")
+    parser.add_argument("--shapefile_path", type=str, help="Path to shapefile coresponding the input image")
+    parser.add_argument("--evaluate", type=bool, help="evaluate the testing image of your model with the shapefile path")
+    if not os.path.exists('./demo/output_pred'):
+        os.makedirs('./demo/output_pred')
+    args = parser.parse_args()
+
+    process_one_image(args.image_path, args.shapefile_path, args.evaluate)
+    
     # lst_raster = ['W03_202003311249_RI_RSK_RSKA014702_RGB']
-    lst_raster = ["W05_202003281250_RI_RSK_RSKA003603_RGB"]
-    for raster in lst_raster:
-        # print("Process {}...".format(raster))
-        lst_raster_img = natsorted([i for i in os.listdir("../data/"+raster) if i[-4:]=='.tif'])
-        raster_img = lst_raster_img[0]
-        # for raster_img in lst_raster_img:
-        print("Process {}...".format(raster_img))
-        # import ipdb; ipdb.set_trace()
-        img_path = os.path.join("../data", raster, raster_img)
-        shfPath = os.path.join("../data", raster, "{}.shp".format(raster))
-        process_one_image(img_path, shfPath, evaluate=True)
+    # lst_raster = ["W05_202003281250_RI_RSK_RSKA003603_RGB"]
+    # for raster in lst_raster:
+    #     # print("Process {}...".format(raster))
+    #     lst_raster_img = natsorted([i for i in os.listdir("../data/"+raster) if i[-4:]=='.tif'])
+    #     raster_img = lst_raster_img[0]
+    #     # for raster_img in lst_raster_img:
+    #     print("Process {}...".format(raster_img))
+    #     # import ipdb; ipdb.set_trace()
+    #     img_path = os.path.join("../data", raster, raster_img)
+    #     shfPath = os.path.join("../data", raster, "{}.shp".format(raster))
+    #     process_one_image(img_path, shfPath, evaluate=True)

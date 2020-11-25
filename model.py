@@ -1,10 +1,11 @@
 import torchvision
 from torch import nn
-
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor, FasterRCNN
-from torchvision.models.detection.rpn import AnchorGenerator
-from config import cfg 
 from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
+from torchvision.models.detection.faster_rcnn import (FasterRCNN,
+                                                      FastRCNNPredictor)
+from torchvision.models.detection.rpn import AnchorGenerator
+
+from config import cfg
 
 
 def fasterrcnn_resnet101_fpn(pretrained=False, progress=True,

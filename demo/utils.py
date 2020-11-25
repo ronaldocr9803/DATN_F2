@@ -1,17 +1,17 @@
+import geopandas as gpd
+import rasterio
 import slidingwindow
 import tensorflow as tf
-from model import fasterrcnn_resnet101_fpn
 import torch
-from shapely.geometry import mapping, shape
-from shapely.geometry import box
 from lib.BoundingBox import BoundingBox
 from lib.BoundingBoxes import BoundingBoxes
-import rasterio
-import geopandas as gpd
-from shapely.geometry import Point, Polygon
-from tqdm import tqdm
 from lib.Evaluator import *
 from lib.utils import *
+from model import fasterrcnn_resnet101_fpn
+from shapely.geometry import Point, Polygon, box, mapping, shape
+from tqdm import tqdm
+
+
 def init_model():
     # if model_name == "resnet50":
     #     model = build_model_resnet50fpn(3)
